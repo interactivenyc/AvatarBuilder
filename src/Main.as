@@ -1,19 +1,17 @@
 package
 {
-	import flash.display.Loader;
 	import flash.display.MovieClip;
+	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
-	import flash.filesystem.File;
-	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
 	public class Main extends Sprite {
-		private var _currentShirt:Shirt;
+		private var makeAvatarButton:MovieClip;
 		
 		public function Main() {
 			super();
@@ -25,97 +23,110 @@ package
 			addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			log("Hello World");
-			createTextField();
-			
-			
 		}
 		
 		private function onAddedToStage(e:Event):void{
 			log("onAddedToStage");
-			addHead();
-			addShirt();
 			
+			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			
+			createHelloWorldTextField();
+			createAvatarButton();
 		}
 		
-		private function createTextField():void{
-			log("createTextField");
+		private function createAvatarButton():void{
+			log("createAvatarButton");
+			
+			makeAvatarButton = getButton("Make Avatar");
+			
+			makeAvatarButton.x = 20;
+			makeAvatarButton.y = 120;
+			
+			addChild(makeAvatarButton);
+			makeAvatarButton.mouseEnabled = true;
+			
+			makeAvatarButton.addEventListener(MouseEvent.MOUSE_DOWN, onButtonClicked);
+		}
+		
+		
+		
+		private function createHelloWorldTextField():void{
+			log("createHelloWorldTextField");
+			
+			var helloWorldText:TextField = getTextField("Hello World");
+			
+			helloWorldText.x = 20;
+			helloWorldText.y = 20;
+			
+			addChild(helloWorldText);
+		}
+		
+		private function makeAvatar():void{
+			log("makeAvatar");
+		}
+		
+		
+		
+		
+		//********************************************************
+		// UTILITY FUNCTIONS
+		//********************************************************
+		
+		private function getTextField(labelText:String):TextField{
+			log("createTextField: "+labelText);
 
 			var tf:TextField = new TextField();
-			tf.text = "Hello World";
+			tf.text = labelText;
 			var fmt:TextFormat = tf.getTextFormat();
-			fmt.size = 72;
+			fmt.size = 24;
 			fmt.color = 0xff6600;
+			fmt.font = "sans";
 			tf.setTextFormat(fmt);
 			tf.width = tf.textWidth + 10;
-			tf.x = 20;
-			tf.y = 20;
-			addChild(tf);
+			tf.height = tf.textHeight + 10;
+			
+			return tf;
 		}
 		
-		private function addHead():void{
-			var head:Head = new Head();
-			head.x = 200;
-			head.y = 300;
-			addChild(head);
-			head.mouth.alpha = .5;
-			head.tongue.alpha = .5;
+		private function getFilledMC(w:Number,h:Number,color:Number = 0x0000FF):MovieClip {
+			log("getFilledMC() width: "+ w + ", height: "+ h + ", color: "+ color);
+			var mc:MovieClip = new MovieClip();
+			var rect:Shape = new Shape();
+			rect.graphics.beginFill(color);
+			rect.graphics.lineStyle(0,color,0);
+			rect.graphics.drawRect(0, 0, w, h);
+			rect.graphics.endFill();
+			mc.addChild(rect);
 			
-			head.addEventListener(MouseEvent.MOUSE_DOWN, addChildTop);
-			head.addEventListener(MouseEvent.MOUSE_DOWN, onStartDrag);
-			head.addEventListener(MouseEvent.MOUSE_UP, onStopDrag);
+			return mc;
 		}
 		
-		private function addShirt():void{
-			var shirt:Shirt = new Shirt();
-			shirt.x = 400;
-			shirt.y = 300;
-			addChild(shirt);
+		private function getButton(buttonName:String):MovieClip{
+			log("getButton: "+buttonName);
+			var button:MovieClip = new MovieClip();
+			var buttonText:TextField = getTextField(buttonName);
+			button.addChild(buttonText);
+			var hitArea:MovieClip = getFilledMC(buttonText.width, buttonText.height);
+			hitArea.alpha = .3;
+			button.hitArea = hitArea;
+			button.addChild(hitArea);
 			
-			_currentShirt = shirt;
-			
-			shirt.doubleClickEnabled = true;
-			shirt.mouseChildren = false;
-			shirt.addEventListener(MouseEvent.DOUBLE_CLICK, editFill);
-			
-			shirt.addEventListener(MouseEvent.MOUSE_DOWN, addChildTop);
-			shirt.addEventListener(MouseEvent.MOUSE_DOWN, onStartDrag);
-			shirt.addEventListener(MouseEvent.MOUSE_UP, onStopDrag);
+			return button;
 		}
 		
-		private function editFill(e:MouseEvent):void{
-			log("editFill");
-			var currentTarget:MovieClip = e.currentTarget as MovieClip;
-			var file:File = File.applicationDirectory.resolvePath("assets");
-			//file.resolvePath("./assets");
-			file.browse();
-			file.addEventListener(Event.SELECT, selectFill);
-		}
 		
-		private function selectFill(e:Event):void{
-			e.currentTarget.removeEventListener(Event.SELECT, selectFill);
-
-			log("selectFill: " + (e.target as File).name);
-			log("selectFill: " + (e.target as File).nativePath);
-			
-			var loader:Loader = new Loader();
-			var urlRequest:URLRequest = new URLRequest();
-			urlRequest.url = (e.target as File).name;
-			loader.addEventListener(Event.COMPLETE, fillLoaded);
-			loader.load(urlRequest);
-			
-			_currentShirt.addChild(loader);
-			
-		}
 		
-		private function fillLoaded():void{
-			
-			log("fillLoaded: ");
-			
-		}
+		//********************************************************
+		// Event Handlers
+		//********************************************************
 		
-		private function addChildTop(e:MouseEvent):void{
-			log("addChildTop");
-			addChild(e.currentTarget as MovieClip);
+		
+		private function onButtonClicked(e:MouseEvent):void{
+			switch (e.currentTarget){
+				case makeAvatarButton:
+					makeAvatar();
+					break;
+			}
 		}
 		
 		private function onStartDrag(e:Event):void{
