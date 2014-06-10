@@ -1,5 +1,7 @@
 package
 {
+	import com.interactivenyc.iptcamp.Avatar;
+	
 	import flash.display.MovieClip;
 	import flash.display.Shape;
 	import flash.display.Sprite;
@@ -7,14 +9,26 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.filters.DropShadowFilter;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
 	public class Main extends Sprite {
-		private var makeAvatarButton:MovieClip;
+		private var _makeAvatarButton:MovieClip;
+		private var _changeClothingButton:MovieClip;
+		private var _changeEyesButton:MovieClip;
+		private var _changeMouthButton:MovieClip;
+		private var _changeHairButton:MovieClip;
+		
+		private var _buttonPanel:MovieClip;
+		
+		private var _currentAvatar:Avatar;
+		private var _avatarArray:Array = new Array();
+		private var _buttonArray:Array = new Array();
 		
 		public function Main() {
 			super();
+			log("CONSTRUCTOR");
 			
 			// support autoOrients
 			stage.align = StageAlign.TOP_LEFT;
@@ -31,21 +45,33 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 			
 			createHelloWorldTextField();
-			createAvatarButton();
+			createAvatarButtons();
 		}
 		
-		private function createAvatarButton():void{
+		private function createAvatarButtons():void{
 			log("createAvatarButton");
 			
-			makeAvatarButton = getButton("Make Avatar");
+			_buttonPanel = new MovieClip();
 			
-			makeAvatarButton.x = 20;
-			makeAvatarButton.y = 120;
+			_makeAvatarButton = getButton("Make Avatar");
+			_buttonPanel.addChild(_makeAvatarButton);
 			
-			addChild(makeAvatarButton);
-			makeAvatarButton.mouseEnabled = true;
+			_changeClothingButton = getButton("Change Clothes");
+			_buttonPanel.addChild(_changeClothingButton);
 			
-			makeAvatarButton.addEventListener(MouseEvent.MOUSE_DOWN, onButtonClicked);
+			_changeEyesButton = getButton("Change Eyes");
+			_buttonPanel.addChild(_changeEyesButton);
+			
+			_changeMouthButton = getButton("Change Mouth");
+			_buttonPanel.addChild(_changeMouthButton);
+			
+			_changeHairButton = getButton("Change Hair");
+			_buttonPanel.addChild(_changeHairButton);
+			
+			_buttonPanel.x = 20;
+			_buttonPanel.y = 20;
+			
+			addChild(_buttonPanel);
 		}
 		
 		
@@ -63,8 +89,31 @@ package
 		
 		private function makeAvatar():void{
 			log("makeAvatar");
+			
+			_currentAvatar = new Avatar();
+			_avatarArray.push(_currentAvatar);
+			
+			hiliteAvatar(_currentAvatar);
+			
+			_currentAvatar.addEventListener("SET_CURRENT_AVATAR", setCurrentAvatar);
+			
+			addChild(_currentAvatar);
 		}
 		
+		private function setCurrentAvatar(e:Event):void{
+			log("setCurrentAvatar: "+e.currentTarget);
+			_currentAvatar = e.currentTarget as Avatar;
+			addChild(_currentAvatar);
+			hiliteAvatar(_currentAvatar);
+		}
+		
+		private function hiliteAvatar(avatar:Avatar):void{
+			for (var i:int=0; i<_avatarArray.length; i++){
+				_avatarArray[i].filters = [];
+			}
+			
+			avatar.filters = [new DropShadowFilter(6,45,0,1,8,2)];
+		}
 		
 		
 		
@@ -104,12 +153,22 @@ package
 		private function getButton(buttonName:String):MovieClip{
 			log("getButton: "+buttonName);
 			var button:MovieClip = new MovieClip();
+			
 			var buttonText:TextField = getTextField(buttonName);
+			button.buttonText = buttonText;
 			button.addChild(buttonText);
+			
 			var hitArea:MovieClip = getFilledMC(buttonText.width, buttonText.height);
 			hitArea.alpha = .3;
 			button.hitArea = hitArea;
 			button.addChild(hitArea);
+			
+			_buttonArray.push(button)
+			
+			button.x = 0;
+			button.y = (_buttonArray.length * (button.height + 10));
+			
+			button.addEventListener(MouseEvent.MOUSE_DOWN, onButtonClicked);
 			
 			return button;
 		}
@@ -122,10 +181,24 @@ package
 		
 		
 		private function onButtonClicked(e:MouseEvent):void{
+			log("onButtonClicked: " + e.currentTarget["buttonText"].text);
 			switch (e.currentTarget){
-				case makeAvatarButton:
+				case _makeAvatarButton:
 					makeAvatar();
 					break;
+				case _changeClothingButton:
+					_currentAvatar.changeClothing();
+					break;
+				case _changeHairButton:
+					_currentAvatar.changeHair();
+					break;
+				case _changeEyesButton:
+					_currentAvatar.changeEyes();
+					break;
+				case _changeMouthButton:
+					_currentAvatar.changeMouth();
+					break;
+				
 			}
 		}
 		
