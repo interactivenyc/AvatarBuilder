@@ -91,6 +91,8 @@ package
 			log("makeAvatar");
 			
 			_currentAvatar = new Avatar();
+			_currentAvatar.x = 400;
+			_currentAvatar.y = 400;
 			_avatarArray.push(_currentAvatar);
 			
 			hiliteAvatar(_currentAvatar);
