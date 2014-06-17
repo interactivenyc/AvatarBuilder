@@ -128,7 +128,7 @@ package
 
 			var tf:TextField = new TextField();
 			tf.text = labelText;
-			var fmt:TextFormat = tf.getTextFormat();
+			var fmt:TextFormat = new TextFormat();
 			fmt.size = 24;
 			fmt.color = 0xff6600;
 			fmt.font = "sans";
