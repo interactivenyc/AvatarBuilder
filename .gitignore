@@ -2,3 +2,6 @@
 .settings
 .project
 .DS_Store
+bin-debug/DebugHostInfo.xml
+bin-debug/Main-app.xml
+fla/Avatar-IOS.swf
